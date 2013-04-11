@@ -1,0 +1,44 @@
+{% block facebook_login %}
+<div id="fb-root"></div>
+<script>
+  // Additional JS functions here
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '453259271374407', // App ID
+      channelUrl : '//{{ request.get_host }}{% url 'channel.html' %}', // Channel File
+      status     : true, // check login status
+      cookie     : true, // enable cookies to allow the server to access the session
+      xfbml      : true  // parse XFBML
+    });
+
+    // Additional init code here
+
+  };
+
+  // Load the SDK Asynchronously
+  (function(d){
+     var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement('script'); js.id = id; js.async = true;
+     js.src = "//connect.facebook.net/{{ LANGUAGE_CODE|facebook_i18n }}/all.js";
+     ref.parentNode.insertBefore(js, ref);
+   }(document));
+  
+  // Login function
+  function facebook_login() {
+    FB.login(function(response) {
+        console.log(response);
+        if (response.authResponse) {
+            // connected
+            var user_id = response.authResponse.userID;
+            var access_token = response.authResponse.accessToken;
+            var redirect_uri = '{{ request.build_absolute_uri|urlencode }}';
+            window.location = '{% url 'facebook_login.views.callback' %}?access_token=' + access_token + '&user_id=' + user_id + '&redirect_uri=' + redirect_uri;
+        } else {
+            // cancelled
+        }
+    }, {scope: 'email'});
+  }
+</script>
+<a href="javascript:void(0);" onclick="facebook_login();">Facebook Login</a>
+{% endblock %}
